@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using System;
 using UnityEngine;
@@ -18,18 +18,25 @@ namespace DeMiLService
         {
             if (!Application.isEditor)
             {
-                Logger.Log($"Using version: {(ModManager.Instance.InstalledModInfos.Values.First(info => info.ID == "DeMiLService").Version)}");
-            } else
+                ModInfo info = ModManager.Instance.InstalledModInfos.Values.FirstOrDefault(info => info.ID == "DeMiLService");
+                if (info != null)
+                {
+                    Logger.Log($"Using version: {(info.Version)}");
+                }
+                else
+                    Logger.Log("Cannot get Version.");
+            }
+            else
             {
-                Logger.Log("Not in game, cannot get Version.");
+                Logger.Log("Cannot get Version.");
             }
             gameCommands = GetComponent<KMGameCommands>();
             inf = GetComponent<KMGameInfo>();
             server = new Server(gameCommands, inf);
             serverCoroutine = StartCoroutine(server.StartCoroutine());
             StartCoroutine(MultipleBombs.Refresh());
-        }
 
+        }
         void OnEnable()
         {
             Logger.Log("Enabled");

@@ -14,7 +14,20 @@ MonoBehaviour:
   id: DeMiLService
   title: DeMiL Service
   author: t-chen
-  description: 
-  version: 0.0.1
+  description: 'This mod creates Web API to load mission mods and start the mission.
+
+    You can access to https://ktane.timwi.de/More/DeMiLMissionViewer/index.html to
+    see the missions you have installed, see their details, and start the mission.
+
+    Once you press "Save and disable all mods", the mission mods will be disabled
+    in game, but you can still view them through the web page.
+
+
+    This mod is still under development. If you found any bugs, please report to t-chen#5876
+    in discord.
+
+
+    Source code(github) https://github.com/tepel-chen/DeMiLService'
+  version: 0.0.2
   outputFolder: E:\Steam\steamapps\common\Keep Talking and Nobody Explodes\mods
-  previewImage: {fileID: 0}
+  previewImage: {fileID: 2800000, guid: 9b155cc76c66f5944a35c4594a0d8189, type: 3}

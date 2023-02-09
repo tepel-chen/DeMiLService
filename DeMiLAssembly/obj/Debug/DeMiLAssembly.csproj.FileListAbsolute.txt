@@ -3,4 +3,3 @@ C:\Users\totsu\ktane_mods\DeMiL\DeMiLAssembly\bin\Debug\DeMiLService.pdb
 C:\Users\totsu\ktane_mods\DeMiL\DeMiLAssembly\obj\Debug\DeMiLAssembly.csproj.CoreCompileInputs.cache
 C:\Users\totsu\ktane_mods\DeMiL\DeMiLAssembly\obj\Debug\DeMiLService.dll
 C:\Users\totsu\ktane_mods\DeMiL\DeMiLAssembly\obj\Debug\DeMiLService.pdb
-C:\Users\totsu\ktane_mods\DeMiL\DeMiLAssembly\obj\Debug\DeMiLAssembly.csprojAssemblyReference.cache
