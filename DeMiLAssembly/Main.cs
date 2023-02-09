@@ -1,7 +1,8 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System;
 using UnityEngine;
+using Assets.Scripts.Mods;
 
 namespace DeMiLService
 {
@@ -48,7 +49,12 @@ namespace DeMiLService
         void OnDisable()
         {
             Logger.Log("Disabled");
-            StopCoroutine(serverCoroutine);
+            if (serverCoroutine != null)
+            {
+                StopCoroutine(serverCoroutine);
+                server.Close();
+            }
+
         }
     }
 }

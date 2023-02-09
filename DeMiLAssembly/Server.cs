@@ -59,6 +59,11 @@ namespace DeMiLService
             }
         }
 
+        public void Close()
+        {
+            listener.Stop();
+        }
+
         public void Handler(IAsyncResult result)
         {
             HttpListener listener = (HttpListener)result.AsyncState;
