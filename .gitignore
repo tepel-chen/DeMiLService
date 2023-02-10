@@ -29,6 +29,7 @@ sysinfo.txt
 *.csproj
 /Assets/Generated.meta
 Assets/Generated
+Assets/Plugins/Managed/DeMiLService.dll*
 Gen
 
 .idea
