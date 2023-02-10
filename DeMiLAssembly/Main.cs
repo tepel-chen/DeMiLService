@@ -34,14 +34,12 @@ namespace DeMiLService
             gameCommands = GetComponent<KMGameCommands>();
             inf = GetComponent<KMGameInfo>();
             server = new Server(gameCommands, inf);
-            serverCoroutine = StartCoroutine(server.StartCoroutine());
-            StartCoroutine(MultipleBombs.Refresh());
 
         }
         void OnEnable()
         {
             Logger.Log("Enabled");
-            if (serverCoroutine != null) return;
+            if (server.IsRunning) return;
             serverCoroutine = StartCoroutine(server.StartCoroutine());
             StartCoroutine(MultipleBombs.Refresh());
         }
@@ -52,8 +50,8 @@ namespace DeMiLService
             if (serverCoroutine != null)
             {
                 StopCoroutine(serverCoroutine);
-                server.Close();
             }
+            server.Close();
 
         }
     }

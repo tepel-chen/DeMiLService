@@ -22,6 +22,8 @@ namespace DeMiLService
 
         private readonly Queue<IEnumerator<object>> coroutineQueue;
 
+        internal bool IsRunning => listener != null && listener.IsListening;
+
         internal Server(KMGameCommands gameCommands, KMGameInfo inf)
         {
             config = DeMiLConfig.Read();
@@ -33,7 +35,7 @@ namespace DeMiLService
             coroutineQueue = new Queue<IEnumerator<object>>();
         }
 
-        public IEnumerator<object> StartCoroutine()
+        internal IEnumerator<object> StartCoroutine()
         {
             listener.Start();
             Debug.Log($"[DeMiLService] Server ready on ${listener.Prefixes.ElementAt(0)}");
@@ -59,12 +61,13 @@ namespace DeMiLService
             }
         }
 
-        public void Close()
+        internal void Close()
         {
+            if (!IsRunning) return;
             listener.Stop();
         }
 
-        public void Handler(IAsyncResult result)
+        private void Handler(IAsyncResult result)
         {
             HttpListener listener = (HttpListener)result.AsyncState;
             HttpListenerContext context = listener.EndGetContext(result);
@@ -73,7 +76,7 @@ namespace DeMiLService
             coroutineQueue.Enqueue(Send(SwitchURL(context), context));
         }
 
-        public void OnStateChange(State _state) => state = _state;
+        internal void OnStateChange(State _state) => state = _state;
 
         private IEnumerable<object> SwitchURL(HttpListenerContext context)
         {

@@ -59,7 +59,7 @@ namespace DeMiLService
                                     continue;
                                 if (missionDetails.GeneratorSettings.ContainsKey(bombIndex))
                                     continue;
-                                GeneratorSetting bombGeneratorSetting = null;
+                                GeneratorSetting bombGeneratorSetting;
                                 try
                                 {
                                     bombGeneratorSetting = ModMission.CreateGeneratorSettingsFromMod(JsonConvert.DeserializeObject<KMGeneratorSetting>(strings[2]));

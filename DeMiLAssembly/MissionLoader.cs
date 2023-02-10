@@ -158,6 +158,8 @@ namespace DeMiLService
 				loadedMods[modPath] = mod;
 				Logger.Log($"Loaded Mod {steamID}");
 
+				FactoryMission.Reload();
+				FactoryMission.UpdateCompatibleMissions();
 			}
 		}
 
