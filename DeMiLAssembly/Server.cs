@@ -15,10 +15,8 @@ namespace DeMiLService
     {
         string Prefix => $"http://*:{config.Port}/";
         private readonly HttpListener listener;
-        private readonly KMGameCommands gameCommands;
-        private readonly KMGameInfo inf;
         private readonly DeMiLConfig config;
-        private State state;
+        private readonly MissionStarter missionStarter;
 
         private readonly Queue<IEnumerator<object>> coroutineQueue;
 
@@ -29,16 +27,14 @@ namespace DeMiLService
             config = DeMiLConfig.Read();
             listener = new HttpListener();
             listener.Prefixes.Add(Prefix);
-            this.gameCommands = gameCommands;
-            this.inf = inf;
-            inf.OnStateChange += OnStateChange;
+            missionStarter = new MissionStarter(inf, gameCommands);
             coroutineQueue = new Queue<IEnumerator<object>>();
         }
 
         internal IEnumerator<object> StartCoroutine()
         {
             listener.Start();
-            Debug.Log($"[DeMiLService] Server ready on ${listener.Prefixes.ElementAt(0)}");
+            Logger.Log($"Server ready on ${listener.Prefixes.ElementAt(0)}");
             while (true)
             {
                 var result = listener.BeginGetContext(new AsyncCallback(Handler), listener);
@@ -81,8 +77,6 @@ namespace DeMiLService
             Logger.Log($"Recieved request {context.Request.Url.OriginalString}");
             coroutineQueue.Enqueue(Send(SwitchURL(context), context));
         }
-
-        internal void OnStateChange(State _state) => state = _state;
 
         private IEnumerable<object> SwitchURL(HttpListenerContext context)
         {
@@ -148,13 +142,12 @@ namespace DeMiLService
         private IEnumerable<object> RunLoadMission(HttpListenerContext context)
         {
             string steamId = context.Request.QueryString.Get("steamId");
+            bool refreshBinder = (context.Request.QueryString.Get("refreshBinder")?.ToLower() ?? "true") != "false";
 
             if (steamId != null)
             {
                 yield return MissionLoader.LoadMission(steamId);
-                var pageManager = UnityEngine.Object.FindObjectOfType<SetupRoom>().BombBinder.MissionTableOfContentsPageManager;
-                pageManager.ForceFullRefresh();
-                var data = new Dictionary<string, string>() {
+                if (refreshBinder) BinderRefresher.Refresh();
                     { "Loaded mission", steamId }
                 };
                 yield return JsonConvert.SerializeObject(data, Formatting.Indented);
@@ -170,10 +163,14 @@ namespace DeMiLService
         private IEnumerable<object> RunGetMissionInfo(HttpListenerContext context)
         {
             string steamId = context.Request.QueryString.Get("steamId");
+            bool refreshBinder = (context.Request.QueryString.Get("refreshBinder")?.ToLower() ?? "true") != "false";
 
             if (steamId != null)
             {
                 yield return MissionLoader.LoadMission(steamId);
+
+                if (refreshBinder) BinderRefresher.Refresh();
+
                 if (MissionLoader.loadedMods.TryGetValue(MissionLoader.GetModPath(steamId), out Mod mod)) {
                     var data = MissionPackData.GetMissionData(steamId, mod, config.Port);
                     yield return JsonConvert.SerializeObject(data, Formatting.Indented);
