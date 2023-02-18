@@ -21,6 +21,6 @@ MonoBehaviour:
     game, but you can still view them through the web page.\r\n\r\nThis mod is still
     under development. If you found any bugs, please report to t-chen#5876 in discord.\r\n\r\nSource
     code(github) https://github.com/tepel-chen/DeMiLService\r\n\r\nAPI Reference https://github.com/tepel-chen/DeMiLService/wiki/API-Reference"
-  version: 1.2.0
+  version: 1.2.1
   outputFolder: E:\Steam\steamapps\common\Keep Talking and Nobody Explodes\mods
   previewImage: {fileID: 2800000, guid: 9b155cc76c66f5944a35c4594a0d8189, type: 3}
