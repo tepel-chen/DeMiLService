@@ -10,8 +10,8 @@ namespace DeMiLService
     public class MissionStarter
     {
 
-        private State state;
-        private void OnStateChange(State _state) => state = _state;
+        public State State;
+        private void OnStateChange(State _state) => State = _state;
         private KMGameInfo inf;
         private KMGameCommands gameCommands;
 
@@ -26,7 +26,7 @@ namespace DeMiLService
         {
             string seed = _seed == null ? "-1" : _seed;
 
-            if (state != State.Setup)
+            if (State != State.Setup)
             {
                 throw new Exception("You must be in the setup state to start a mission.");
             }
@@ -37,11 +37,11 @@ namespace DeMiLService
                 throw new Exception($"Mission not found: {missionId}");
             }
 
-            Dictionary<string, object> detail;
-            if (!force && !CanStartMission(mission, out detail))
+            if (!force && !CanStartMission(mission, out Dictionary<string, object> detail))
             {
                 return detail;
-            } else
+            }
+            else
             {
                 detail = new Dictionary<string, object>();
             }

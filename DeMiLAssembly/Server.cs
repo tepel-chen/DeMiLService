@@ -241,6 +241,12 @@ namespace DeMiLService
 
         private IEnumerable<object> RunSaveAndDisableMissions(HttpListenerContext context)
         {
+
+            if (missionStarter.State != State.Setup)
+            {
+                throw new Exception("You must be in the setup state to save and disable mods.");
+            }
+
             var missionAbstract = MissionLoader.LoadedMods.AsEnumerable()
                 .Where(v => MissionLoader.IsMissionMod(v.Value))
                 .Select(v => MissionPackAbstractData.GetMissionData(Path.GetFileName(v.Key), v.Value, config.Port));
