@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using UnityEngine;
 using static Assets.Scripts.Mods.ModInfo;
 
@@ -19,7 +20,7 @@ namespace DeMiLService
                 null : 
                 Path.GetFullPath(new[] { SteamDirectory, "steamapps", "workshop", "content", "341800" }.Aggregate(Path.Combine));
 		public static readonly Dictionary<string, Mod> loadedMods = ModManager.Instance.GetValue<Dictionary<string, Mod>>("loadedMods");
-
+		public static Regex matchSteamID = new Regex(@"^\d+$");
 		static MissionLoader()
         {
 			SteamDirectory = FindSteamDirectory();
@@ -112,6 +113,12 @@ namespace DeMiLService
 
 		public static IEnumerator<object> LoadMission(string steamID)
 		{
+
+			if(!matchSteamID.IsMatch(steamID))
+            {
+				throw new Exception($"SteamID must be numbers");
+			}
+
             Logger.Log($"Trying to load Mod {steamID}");
 			string modPath = GetModPath(steamID);
 			if (!Directory.Exists(modPath))
@@ -161,6 +168,10 @@ namespace DeMiLService
 				FactoryMission.Reload();
 				FactoryMission.UpdateCompatibleMissions();
 			}
+
+			mod.RemoveServiceObjects();
+			mod.CallMethod("RemoveSoundGroups");
+			mod.CallMethod("RemoveSoundOverrides");
 		}
 
 		public static bool IsMissionMod(Mod mod)

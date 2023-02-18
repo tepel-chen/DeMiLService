@@ -1,4 +1,4 @@
-﻿using Assets.Scripts.Missions;
+using Assets.Scripts.Missions;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -71,6 +71,12 @@ namespace DeMiLService
         {
             HttpListener listener = (HttpListener)result.AsyncState;
             HttpListenerContext context = listener.EndGetContext(result);
+
+            if(context.Request.Url.Host != "localhost")
+            {
+                coroutineQueue.Enqueue(Send(new string[] { "This url is only accessable from localhost"}, context));
+                return;
+            }
 
             Logger.Log($"Recieved request {context.Request.Url.OriginalString}");
             coroutineQueue.Enqueue(Send(SwitchURL(context), context));

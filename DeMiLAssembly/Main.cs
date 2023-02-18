@@ -19,10 +19,15 @@ namespace DeMiLService
         {
             if (!Application.isEditor)
             {
-                ModInfo info = ModManager.Instance.InstalledModInfos.Values.FirstOrDefault(info => info.ID == "DeMiLService");
+                var info = ModManager
+                .Instance
+                .InstalledModInfos
+                .Values
+                .Cast<object>()
+                .FirstOrDefault(x => ((ModInfo)x).ID is "AdvancedMissionGenerator");
                 if (info != null)
                 {
-                    Logger.Log($"Using version: {(info.Version)}");
+                    Logger.Log($"Using version: {(((ModInfo)info).Version)}");
                 }
                 else
                     Logger.Log("Cannot get Version.");
