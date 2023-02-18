@@ -2,27 +2,30 @@
 using Assets.Scripts.Services;
 using Assets.Scripts.Settings;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using UnityEngine;
 using static Assets.Scripts.Mods.ModInfo;
 
 namespace DeMiLService
 {
-    static class MissionLoader
-    {
-        public static string SteamDirectory;
-        public static string SteamWorkshopDirectory 
-            => SteamDirectory == null ? 
-                null : 
-                Path.GetFullPath(new[] { SteamDirectory, "steamapps", "workshop", "content", "341800" }.Aggregate(Path.Combine));
-		public static readonly Dictionary<string, Mod> loadedMods = ModManager.Instance.GetValue<Dictionary<string, Mod>>("loadedMods");
-		public static Regex matchSteamID = new Regex(@"^\d+$");
+	static class MissionLoader
+	{
+		public static string SteamDirectory;
+		public static string SteamWorkshopDirectory
+			=> SteamDirectory == null ?
+				null :
+				Path.GetFullPath(new[] { SteamDirectory, "steamapps", "workshop", "content", "341800" }.Aggregate(Path.Combine));
+		public static readonly Dictionary<string, Mod> LoadedMods = ModManager.Instance.GetValue<Dictionary<string, Mod>>("loadedMods");
+		private static readonly Regex matchSteamID = new Regex(@"^\d+$");
+		private static MethodInfo dblEnterAndLeaveModManagerMethod;
 		static MissionLoader()
-        {
+		{
 			SteamDirectory = FindSteamDirectory();
 		}
 
@@ -107,31 +110,31 @@ namespace DeMiLService
 			return null;
 		}
 		public static string GetModPath(string steamID)
-        {
+		{
 			return Path.Combine(SteamWorkshopDirectory, steamID);
 		}
 
 		public static IEnumerator<object> LoadMission(string steamID)
 		{
 
-			if(!matchSteamID.IsMatch(steamID))
-            {
+			if (!matchSteamID.IsMatch(steamID))
+			{
 				throw new Exception($"SteamID must be numbers");
 			}
 
-            Logger.Log($"Trying to load Mod {steamID}");
+			Logger.Log($"Trying to load Mod {steamID}");
 			string modPath = GetModPath(steamID);
 			if (!Directory.Exists(modPath))
 			{
 				throw new Exception($"Mod with steamID ${steamID} not found");
 			}
 
-			if (loadedMods.TryGetValue(modPath, out Mod mod))
+			if (LoadedMods.TryGetValue(modPath, out Mod mod))
 			{
 				Logger.Log($"{steamID} is already loaded.");
 				yield return mod;
 				yield break;
-            }
+			}
 
 			mod = Mod.LoadMod(modPath, ModSourceEnum.Local);
 
@@ -148,21 +151,21 @@ namespace DeMiLService
 
 				var mainBundle = bundleRequest.assetBundle;
 
-				if(mainBundle == null)
+				if (mainBundle == null)
 				{
 					throw new Exception($"\"{steamID}\" have no asset bundle");
 				}
 
 				try
-                {
+				{
 					mod.LoadBundle(mainBundle);
-                } catch (Exception ex)
-                {
-                    UnityEngine.Debug.LogErrorFormat("Load of mod \"{0}\" failed: \n{1}\n{2}", mod.ModID, ex.Message, ex.StackTrace);
+				} catch (Exception ex)
+				{
+					UnityEngine.Debug.LogErrorFormat("Load of mod \"{0}\" failed: \n{1}\n{2}", mod.ModID, ex.Message, ex.StackTrace);
 				}
 
 				mainBundle.Unload(false);
-				loadedMods[modPath] = mod;
+				LoadedMods[modPath] = mod;
 				Logger.Log($"Loaded Mod {steamID}");
 
 				FactoryMission.Reload();
@@ -182,36 +185,16 @@ namespace DeMiLService
 				mod.GetValue<List<KMSoundOverride>>("soundOverrides").Count == 0;
 		}
 
+		public static void DisableMod(string steamID) {
+			Utilities.DisableMod(steamID);
+		}
 
-
-		private static readonly HashSet<string> disabledSteamIDs = new HashSet<string>();
-
-		public static void DisableMod(string steamID) => disabledSteamIDs.Add(steamID);
-
-		public static bool FlushDisabledMods()
-		{
-			if (SteamWorkshopDirectory == null)
-				return false;
-
-			var newMods = false;
-			var disabledMods = ModSettingsManager.Instance.ModSettings.DisabledModPaths.ToList();
-
-			foreach (var steamID in disabledSteamIDs)
-			{
-				var modPath = GetModPath(steamID);
-				if (!disabledMods.Contains(modPath))
-				{
-					disabledMods.Add(modPath);
-					newMods |= true;
-				}
+		public static IEnumerator EnterAndLeaveModManager()
+        {
+			if (dblEnterAndLeaveModManagerMethod == null) {
+				dblEnterAndLeaveModManagerMethod = ReflectionHelper.FindType("DemandBasedLoading", "TweaksAssembly").GetMethod("EnterAndLeaveModManager");
 			}
-
-			ModSettingsManager.Instance.ModSettings.DisabledModPaths = disabledMods.ToArray();
-			ModSettingsManager.Instance.SaveModSettings();
-
-			disabledSteamIDs.Clear();
-
-			return newMods;
+			return (IEnumerator)dblEnterAndLeaveModManagerMethod.Invoke(null, null);
 		}
 	}
 }

@@ -190,7 +190,7 @@ namespace DeMiLService
 
                 if (refreshBinder) BinderRefresher.Refresh();
 
-                if (MissionLoader.loadedMods.TryGetValue(MissionLoader.GetModPath(steamId), out Mod mod)) {
+                if (MissionLoader.LoadedMods.TryGetValue(MissionLoader.GetModPath(steamId), out Mod mod)) {
                     var data = MissionPackData.GetMissionData(steamId, mod, config.Port);
                     yield return data;
                 } else
@@ -214,7 +214,7 @@ namespace DeMiLService
 
                 if (refreshBinder) BinderRefresher.Refresh();
 
-                if (MissionLoader.loadedMods.TryGetValue(MissionLoader.GetModPath(steamId), out Mod mod))
+                if (MissionLoader.LoadedMods.TryGetValue(MissionLoader.GetModPath(steamId), out Mod mod))
                 {
                     var data = MissionPackData.GetMissionData(steamId, mod, config.Port, true);
                     yield return data;
@@ -231,7 +231,7 @@ namespace DeMiLService
         }
         private IEnumerable<object> RunGetMissions(HttpListenerContext context)
         {
-            var missionAbstract = MissionLoader.loadedMods.AsEnumerable()
+            var missionAbstract = MissionLoader.LoadedMods.AsEnumerable()
                 .Where(v => MissionLoader.IsMissionMod(v.Value))
                 .Select(v => MissionPackAbstractData.GetMissionData(Path.GetFileName(v.Key), v.Value, config.Port));
             var data = config.SteamIDs.Concat(missionAbstract).Distinct();
@@ -241,7 +241,7 @@ namespace DeMiLService
 
         private IEnumerable<object> RunSaveAndDisableMissions(HttpListenerContext context)
         {
-            var missionAbstract = MissionLoader.loadedMods.AsEnumerable()
+            var missionAbstract = MissionLoader.LoadedMods.AsEnumerable()
                 .Where(v => MissionLoader.IsMissionMod(v.Value))
                 .Select(v => MissionPackAbstractData.GetMissionData(Path.GetFileName(v.Key), v.Value, config.Port));
 
@@ -249,7 +249,7 @@ namespace DeMiLService
             {
                 MissionLoader.DisableMod(d.SteamID);
             }
-            MissionLoader.FlushDisabledMods();
+            yield return MissionLoader.EnterAndLeaveModManager();
             config.SteamIDs = config.SteamIDs.Concat(missionAbstract).Distinct().ToArray();
 
             DeMiLConfig.Write(config);
