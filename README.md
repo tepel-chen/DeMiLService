@@ -1,9 +1,14 @@
-Community fork of the KTaNE Modkit.
+# DeMiL
 
-The [original (official) modkit](https://github.com/keeptalkinggame/ktanemodkit) isn't going to receive updates anymore. This is the fork that will be maintained from now on.
+You can access to [DeMiLMissionViewer](https://ktane.timwi.de/More/DeMiLMissionViewer/index.html) to see the missions you have installed, see their details, and start the mission.
+Once you press "Save and disable all mods", the mission mods will be disabled in game, but you can still view them through the web page.
 
-Community-made plugins can be installed at the `Keep Talking ModKit > Plugins` menupoint.
+Feel free to make any application using DeMiL API.
+DeMiL API Reference https://github.com/tepel-chen/DeMiLService/wiki/API-Reference
 
-[Documentation](https://github.com/Qkrisi/ktanemodkit/wiki)
 
-To get more help, join the [Keep Talking and Nobody Explodes](https://discord.gg/ktane) or the [KTaNE Modding](https://discord.gg/qzy7Gdz) Discord servers.
+## Build
+
+You need to compile DeMiLAssembly before you build the mod in Unity.
+To do this, first, if you have different game path, change `<GameFolder Condition="'$(GameFolder)' == ''" />` accordingly. 
+Then, open DeMiLAssembly.csproj with Visual Studio and run `Build DeMiLAssembly`.
