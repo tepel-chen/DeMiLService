@@ -12,6 +12,8 @@ namespace DeMiLService
         public int Port = 8095;
         public MissionPackAbstractData[] SteamIDs = { };
 
+        public string[] IgnoredSteamIDs = { };
+
         [JsonIgnore]
         public static ModConfig<DeMiLConfig> loader = new ModConfig<DeMiLConfig>("DeMiLService");
         public static DeMiLConfig Read()

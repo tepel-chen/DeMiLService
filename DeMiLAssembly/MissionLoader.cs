@@ -175,6 +175,8 @@ namespace DeMiLService
 			mod.RemoveServiceObjects();
 			mod.CallMethod("RemoveSoundGroups");
 			mod.CallMethod("RemoveSoundOverrides");
+
+			Toasts.Make($"Loaded mod: {mod.ModID}({steamID})");
 		}
 
 		public static bool IsMissionMod(Mod mod)

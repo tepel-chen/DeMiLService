@@ -253,6 +253,7 @@ namespace DeMiLService
 
             foreach (var d in missionAbstract)
             {
+                if (config.IgnoredSteamIDs.Contains(d.SteamID)) continue;
                 MissionLoader.DisableMod(d.SteamID);
             }
             yield return MissionLoader.EnterAndLeaveModManager();
