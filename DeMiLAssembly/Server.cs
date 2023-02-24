@@ -292,10 +292,16 @@ namespace DeMiLService
             }
 
             byte[] bytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(last));
+            try
+            {
 
-
-            outputStream.Write(bytes, 0, bytes.Length);
-            outputStream.Close();
+                outputStream.Write(bytes, 0, bytes.Length);
+                outputStream.Close();
+            } catch(Exception error)
+            {
+                Logger.Log("Something wrong happened...");
+                Debug.LogError(error);
+            }
         }
     }
 }
