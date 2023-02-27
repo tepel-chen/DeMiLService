@@ -1,4 +1,4 @@
-﻿using Assets.Scripts.Missions;
+using Assets.Scripts.Missions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -96,6 +96,7 @@ namespace DeMiLService
                         { "MissionID", missionId },
                         { "Missing modules", missingMods }
                     };
+                return false;
             }
             if (moduleCount > inf.GetMaximumBombModules())
             {
