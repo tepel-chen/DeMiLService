@@ -182,7 +182,7 @@ namespace DeMiLService
                 yield return MissionLoader.LoadMission(steamId);
                 if (refreshBinder) BinderRefresher.Refresh();
                 yield return new Dictionary<string, string>() {
-                    { "Loaded mission", steamId }
+                    { "LoadedMission", steamId }
                 };
             } else
             {
@@ -273,7 +273,7 @@ namespace DeMiLService
             DeMiLConfig.Write(config);
 
             yield return new Dictionary<string, object>() {
-                { "Saved missions", missionAbstract }
+                { "SavedMissions", missionAbstract }
             };
         }
 

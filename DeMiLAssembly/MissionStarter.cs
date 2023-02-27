@@ -44,8 +44,10 @@ namespace DeMiLService
             }
             else
             {
-                detail = new Dictionary<string, object>();
-                detail.Add("missionId", missionId);
+                detail = new Dictionary<string, object>
+                {
+                    { "MissionID", missionId }
+                };
             }
 
             gameCommands.StartMission(missionId, seed);
@@ -94,8 +96,8 @@ namespace DeMiLService
                 {
                     detail = new Dictionary<string, object>() {
                             { "MissionID", missionId },
-                            { "Maximum supported bombs count", MultipleBombs.GetMaximumBombCount() },
-                            { "Mission modules count", missionDetail.BombCount },
+                            { "MaximumSupportedBombsCount", MultipleBombs.GetMaximumBombCount() },
+                            { "MissionModulesCount", missionDetail.BombCount },
                         };
                     return false;
                 }
@@ -120,7 +122,7 @@ namespace DeMiLService
             {
                 detail = new Dictionary<string, object>() {
                         { "MissionID", missionId },
-                        { "Missing modules", missingMods }
+                        { "MissingModules", missingMods }
                     };
                 return false;
             }
@@ -128,8 +130,8 @@ namespace DeMiLService
             {
                 detail = new Dictionary<string, object>() {
                         { "MissionID", missionId },
-                        { "Maximum supported modules count", inf.GetMaximumBombModules() },
-                        { "Mission modules count", moduleCount },
+                        { "MaximumSupportedModulesCount", inf.GetMaximumBombModules() },
+                        { "MissionModulesCount", moduleCount },
                     };
                 return false;
             }
@@ -137,8 +139,8 @@ namespace DeMiLService
             {
                 detail = new Dictionary<string, object>() {
                         { "MissionID", missionId },
-                        { "Maximum supported frontface modules count", inf.GetMaximumModulesFrontFace() },
-                        { "Mission modules count", moduleCount },
+                        { "MaximumSupportedFrontfaceModulesCount", inf.GetMaximumModulesFrontFace() },
+                        { "MissionModulesCount", moduleCount },
                     };
                 return false;
             }
