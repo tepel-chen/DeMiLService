@@ -126,7 +126,7 @@ namespace DeMiLService
 			string modPath = GetModPath(steamID);
 			if (!Directory.Exists(modPath))
 			{
-				throw new Exception($"Mod with steamID ${steamID} not found");
+				throw new Exception($"Mod with steamID {steamID} not found");
 			}
 
 			if (LoadedMods.TryGetValue(modPath, out Mod mod))

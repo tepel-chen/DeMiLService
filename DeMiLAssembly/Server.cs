@@ -35,7 +35,7 @@ namespace DeMiLService
         internal IEnumerator<object> StartCoroutine()
         {
             listener.Start();
-            Logger.Log($"Server ready on ${listener.Prefixes.ElementAt(0)}");
+            Logger.Log($"Server ready on {listener.Prefixes.ElementAt(0)}");
             while (true)
             {
                 var result = listener.BeginGetContext(new AsyncCallback(Handler), listener);
@@ -150,14 +150,25 @@ namespace DeMiLService
         {
             string steamId = context.Request.QueryString.Get("steamId");
             string missionId = context.Request.QueryString.Get("missionId");
+            string missionName = context.Request.QueryString.Get("missionName");
             string seed = context.Request.QueryString.Get("seed");
             bool force = (context.Request.QueryString.Get("force")?.ToLower() ?? "false") == "true";
+
+            if(missionName != null && steamId == null && missionId == null)
+            {
+                throw new Exception("You must specify steamId when trying to start mission my its name.");
+            }
 
             if (steamId != null)
             {
                 yield return MissionLoader.LoadMission(steamId);
             }
 
+            if(missionId == null && missionName != null && MissionLoader.LoadedMods.TryGetValue(MissionLoader.GetModPath(steamId), out Mod mod))
+            {
+                yield return missionStarter.StartMissionByName(missionName, mod, seed, force);
+                yield break;
+            }
             yield return missionStarter.StartMission(missionId, seed, force);
         }
 
@@ -195,7 +206,7 @@ namespace DeMiLService
                     yield return data;
                 } else
                 {
-                    throw new Exception($"Mod ${steamId} not found");
+                    throw new Exception($"Mod {steamId} not found");
                 }
             }
             else
@@ -221,7 +232,7 @@ namespace DeMiLService
                 }
                 else
                 {
-                    throw new Exception($"Mod ${steamId} not found");
+                    throw new Exception($"Mod {steamId} not found");
                 }
             }
             else
@@ -299,8 +310,7 @@ namespace DeMiLService
                 outputStream.Close();
             } catch(Exception error)
             {
-                Logger.Log("Something wrong happened...");
-                Debug.LogError(error);
+                Logger.LogError(error);
             }
         }
     }

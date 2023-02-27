@@ -12,5 +12,16 @@ namespace DeMiLService
         {
             Debug.Log($"[DeMiLService] {str}");
         }
+
+        public static void LogError(Exception e)
+        {
+            Debug.Log($"[DeMiLService] Exception occered");
+            Debug.LogError(e);
+        }
+        public static void LogError(string str, Exception e)
+        {
+            Debug.Log($"[DeMiLService] {str}");
+            Debug.LogError(e);
+        }
     }
 }

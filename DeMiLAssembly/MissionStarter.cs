@@ -1,4 +1,4 @@
-using Assets.Scripts.Missions;
+﻿using Assets.Scripts.Missions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,8 +12,8 @@ namespace DeMiLService
 
         public State State;
         private void OnStateChange(State _state) => State = _state;
-        private KMGameInfo inf;
-        private KMGameCommands gameCommands;
+        private readonly KMGameInfo inf;
+        private readonly KMGameCommands gameCommands;
 
         public MissionStarter(KMGameInfo inf, KMGameCommands gameCommands)
         {
@@ -25,6 +25,7 @@ namespace DeMiLService
         public Dictionary<string, object> StartMission(string missionId, string _seed, bool force = false)
         {
             string seed = _seed == null ? "-1" : _seed;
+            Logger.Log($"Starting mission ID:{missionId}, seed:{seed}, force:{force}");
 
             if (State != State.Setup)
             {
@@ -44,11 +45,36 @@ namespace DeMiLService
             else
             {
                 detail = new Dictionary<string, object>();
+                detail.Add("missionId", missionId);
             }
 
             gameCommands.StartMission(missionId, seed);
             detail.Add("Seed", seed);
             return detail;
+        }
+        public Dictionary<string, object> StartMissionByName(string name, Mod mod, string _seed, bool force = false)
+        {
+            var searchStr = name.Trim();
+            var missions = mod.GetValue<List<ModMission>>("missions").Select(mission => Tuple.Create(Localization.GetLocalizedString(mission.DisplayNameTerm).Trim(), mission));
+            var fullMatch = missions.Where(missionTuple => missionTuple.Item1 == searchStr).Take(2).ToList();
+            if(fullMatch.Count > 1)
+            {
+                throw new Exception($"Multiple mission with exact name {name} found!");
+            }
+            if(fullMatch.Count == 1)
+            {
+                return StartMission(fullMatch[0].Item2.ID, _seed, force);
+            }
+            var partialMatch = missions.Where(missionTuple => missionTuple.Item1.Contains(searchStr)).Take(2).ToList();
+            if (partialMatch.Count > 1)
+            {
+                throw new Exception($"No mission with exact name found, but multiple mission patially matched {name} ({partialMatch.Select(m => m.Item1).Join(", ")})!");
+            }
+            if (partialMatch.Count == 1)
+            {
+                return StartMission(partialMatch[0].Item2.ID, _seed, force);
+            }
+            throw new Exception($"No mission with name {name} found!");
         }
 
         public bool CanStartMission(Mission mission, out Dictionary<string, object> detail)
