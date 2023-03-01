@@ -18,17 +18,19 @@ namespace DeMiLService
         private readonly HttpListener listener;
         private readonly DeMiLConfig config;
         private readonly MissionStarter missionStarter;
+        private readonly MissionLoader missionLoader;
 
         private readonly Queue<IEnumerator<object>> coroutineQueue;
 
         internal bool IsRunning => listener != null && listener.IsListening;
 
-        internal Server(KMGameCommands gameCommands, KMGameInfo inf)
+        internal Server(KMGameCommands gameCommands, KMGameInfo inf, KMAudio audio, Transform transform)
         {
             config = DeMiLConfig.Read();
             listener = new HttpListener();
             listener.Prefixes.Add(Prefix);
-            missionStarter = new MissionStarter(inf, gameCommands);
+            missionStarter = new MissionStarter(inf, gameCommands, audio, transform);
+            missionLoader = new MissionLoader(audio, transform);
             coroutineQueue = new Queue<IEnumerator<object>>();
         }
 
@@ -161,10 +163,10 @@ namespace DeMiLService
 
             if (steamId != null)
             {
-                yield return MissionLoader.LoadMission(steamId);
+                yield return missionLoader.LoadMission(steamId, false);
             }
 
-            if(missionId == null && missionName != null && MissionLoader.LoadedMods.TryGetValue(MissionLoader.GetModPath(steamId), out Mod mod))
+            if(missionId == null && missionName != null && missionLoader.LoadedMods.TryGetValue(missionLoader.GetModPath(steamId), out Mod mod))
             {
                 yield return missionStarter.StartMissionByName(missionName, mod, seed, force);
                 yield break;
@@ -179,7 +181,7 @@ namespace DeMiLService
 
             if (steamId != null)
             {
-                yield return MissionLoader.LoadMission(steamId);
+                yield return missionLoader.LoadMission(steamId, true);
                 if (refreshBinder) BinderRefresher.Refresh();
                 yield return new Dictionary<string, string>() {
                     { "LoadedMission", steamId }
@@ -197,11 +199,11 @@ namespace DeMiLService
 
             if (steamId != null)
             {
-                yield return MissionLoader.LoadMission(steamId);
+                yield return missionLoader.LoadMission(steamId, true);
 
                 if (refreshBinder) BinderRefresher.Refresh();
 
-                if (MissionLoader.LoadedMods.TryGetValue(MissionLoader.GetModPath(steamId), out Mod mod)) {
+                if (missionLoader.LoadedMods.TryGetValue(missionLoader.GetModPath(steamId), out Mod mod)) {
                     var data = MissionPackData.GetMissionData(steamId, mod, config.Port);
                     yield return data;
                 } else
@@ -221,11 +223,11 @@ namespace DeMiLService
 
             if (steamId != null)
             {
-                yield return MissionLoader.LoadMission(steamId);
+                yield return missionLoader.LoadMission(steamId, true);
 
                 if (refreshBinder) BinderRefresher.Refresh();
 
-                if (MissionLoader.LoadedMods.TryGetValue(MissionLoader.GetModPath(steamId), out Mod mod))
+                if (missionLoader.LoadedMods.TryGetValue(missionLoader.GetModPath(steamId), out Mod mod))
                 {
                     var data = MissionPackData.GetMissionData(steamId, mod, config.Port, true);
                     yield return data;
@@ -242,8 +244,8 @@ namespace DeMiLService
         }
         private IEnumerable<object> RunGetMissions(HttpListenerContext context)
         {
-            var missionAbstract = MissionLoader.LoadedMods.AsEnumerable()
-                .Where(v => MissionLoader.IsMissionMod(v.Value))
+            var missionAbstract = missionLoader.LoadedMods.AsEnumerable()
+                .Where(v => missionLoader.IsMissionMod(v.Value))
                 .Select(v => MissionPackAbstractData.GetMissionData(Path.GetFileName(v.Key), v.Value, config.Port));
             var data = config.SteamIDs.Concat(missionAbstract).Distinct();
 
@@ -258,16 +260,16 @@ namespace DeMiLService
                 throw new Exception("You must be in the setup state to save and disable mods.");
             }
 
-            var missionAbstract = MissionLoader.LoadedMods.AsEnumerable()
-                .Where(v => MissionLoader.IsMissionMod(v.Value))
+            var missionAbstract = missionLoader.LoadedMods.AsEnumerable()
+                .Where(v => missionLoader.IsMissionMod(v.Value))
                 .Select(v => MissionPackAbstractData.GetMissionData(Path.GetFileName(v.Key), v.Value, config.Port));
 
             foreach (var d in missionAbstract)
             {
                 if (config.IgnoredSteamIDs.Contains(d.SteamID)) continue;
-                MissionLoader.DisableMod(d.SteamID);
+                missionLoader.DisableMod(d.SteamID);
             }
-            yield return MissionLoader.EnterAndLeaveModManager();
+            yield return missionLoader.EnterAndLeaveModManager();
             config.SteamIDs = config.SteamIDs.Concat(missionAbstract).Distinct().ToArray();
 
             DeMiLConfig.Write(config);

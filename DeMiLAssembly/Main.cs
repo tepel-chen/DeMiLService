@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System;
+﻿using System.Linq;
 using UnityEngine;
 using Assets.Scripts.Mods;
 
@@ -11,6 +9,7 @@ namespace DeMiLService
 
         private KMGameCommands gameCommands;
         private KMGameInfo inf;
+        private KMAudio audio;
 
         private Server server;
         private Coroutine serverCoroutine;
@@ -38,7 +37,8 @@ namespace DeMiLService
             }
             gameCommands = GetComponent<KMGameCommands>();
             inf = GetComponent<KMGameInfo>();
-            server = new Server(gameCommands, inf);
+            audio = GetComponent<KMAudio>();
+            server = new Server(gameCommands, inf, audio, gameObject.transform);
 
         }
         void OnEnable()

@@ -14,22 +14,28 @@ using static Assets.Scripts.Mods.ModInfo;
 
 namespace DeMiLService
 {
-	static class MissionLoader
+	class MissionLoader
 	{
-		public static string SteamDirectory;
-		public static string SteamWorkshopDirectory
+
+		private readonly KMAudio audio;
+		private readonly Transform transform;
+
+		public string SteamDirectory;
+		public string SteamWorkshopDirectory
 			=> SteamDirectory == null ?
 				null :
 				Path.GetFullPath(new[] { SteamDirectory, "steamapps", "workshop", "content", "341800" }.Aggregate(Path.Combine));
-		public static readonly Dictionary<string, Mod> LoadedMods = ModManager.Instance.GetValue<Dictionary<string, Mod>>("loadedMods");
-		private static readonly Regex matchSteamID = new Regex(@"^\d+$");
-		private static MethodInfo dblEnterAndLeaveModManagerMethod;
-		static MissionLoader()
+		public readonly Dictionary<string, Mod> LoadedMods = ModManager.Instance.GetValue<Dictionary<string, Mod>>("loadedMods");
+		private readonly Regex matchSteamID = new Regex(@"^\d+$");
+		private MethodInfo dblEnterAndLeaveModManagerMethod;
+		public MissionLoader(KMAudio audio, Transform transform)
 		{
 			SteamDirectory = FindSteamDirectory();
+			this.audio = audio;
+			this.transform = transform;
 		}
 
-		private static string FindSteamDirectory()
+		private string FindSteamDirectory()
 		{
 			// Mod folders
 			var folders = AbstractServices.Instance.GetModFolders();
@@ -109,16 +115,20 @@ namespace DeMiLService
 
 			return null;
 		}
-		public static string GetModPath(string steamID)
+		public string GetModPath(string steamID)
 		{
 			return Path.Combine(SteamWorkshopDirectory, steamID);
 		}
 
-		public static IEnumerator<object> LoadMission(string steamID)
+		public IEnumerator<object> LoadMission(string steamID, bool playSound)
 		{
 
 			if (!matchSteamID.IsMatch(steamID))
 			{
+				if (playSound)
+				{
+					audio.PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.Strike, transform);
+				}
 				throw new Exception($"SteamID must be numbers");
 			}
 
@@ -126,6 +136,10 @@ namespace DeMiLService
 			string modPath = GetModPath(steamID);
 			if (!Directory.Exists(modPath))
 			{
+				if (playSound)
+				{
+					audio.PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.Strike, transform);
+				}
 				throw new Exception($"Mod with steamID {steamID} not found");
 			}
 
@@ -166,6 +180,10 @@ namespace DeMiLService
 
 				mainBundle.Unload(false);
 				LoadedMods[modPath] = mod;
+				if(playSound)
+                {
+					audio.PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.CorrectChime, transform);
+                }
 				Logger.Log($"Loaded Mod {steamID}");
 
 				FactoryMission.Reload();
@@ -179,7 +197,7 @@ namespace DeMiLService
 			Toasts.Make($"Loaded mod: {mod.ModID}({steamID})");
 		}
 
-		public static bool IsMissionMod(Mod mod)
+		public bool IsMissionMod(Mod mod)
 		{
 			return mod.GetModObjects<KMBombModule>().Count == 0 &&
 				mod.GetModObjects<KMNeedyModule>().Count == 0 &&
@@ -187,11 +205,11 @@ namespace DeMiLService
 				mod.GetValue<List<KMSoundOverride>>("soundOverrides").Count == 0;
 		}
 
-		public static void DisableMod(string steamID) {
+		public void DisableMod(string steamID) {
 			Utilities.DisableMod(steamID);
 		}
 
-		public static IEnumerator EnterAndLeaveModManager()
+		public IEnumerator EnterAndLeaveModManager()
         {
 			if (dblEnterAndLeaveModManagerMethod == null) {
 				dblEnterAndLeaveModManagerMethod = ReflectionHelper.FindType("DemandBasedLoading", "TweaksAssembly").GetMethod("EnterAndLeaveModManager");

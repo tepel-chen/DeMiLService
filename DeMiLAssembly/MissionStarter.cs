@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using UnityEngine;
 using static KMGameInfo;
 
 namespace DeMiLService
@@ -14,12 +14,16 @@ namespace DeMiLService
         private void OnStateChange(State _state) => State = _state;
         private readonly KMGameInfo inf;
         private readonly KMGameCommands gameCommands;
+        private readonly KMAudio audio;
+        private readonly Transform transform;
 
-        public MissionStarter(KMGameInfo inf, KMGameCommands gameCommands)
+        public MissionStarter(KMGameInfo inf, KMGameCommands gameCommands, KMAudio audio, Transform transform)
         {
             this.inf = inf;
             this.gameCommands = gameCommands;
-            inf.OnStateChange += this.OnStateChange;
+            inf.OnStateChange += OnStateChange;
+            this.audio = audio;
+            this.transform = transform;
         }
 
         public Dictionary<string, object> StartMission(string missionId, string _seed, bool force = false)
@@ -40,6 +44,7 @@ namespace DeMiLService
 
             if (!force && !CanStartMission(mission, out Dictionary<string, object> detail))
             {
+                audio.PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.Strike, transform);
                 return detail;
             }
             else
@@ -50,6 +55,7 @@ namespace DeMiLService
                 };
             }
 
+            audio.PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.Stamp, transform);
             gameCommands.StartMission(missionId, seed);
             detail.Add("Seed", seed);
             return detail;

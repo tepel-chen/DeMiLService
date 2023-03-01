@@ -23,6 +23,7 @@ GameObject:
   - component: {fileID: 114936997877868718}
   - component: {fileID: 114040672688369374}
   - component: {fileID: 114018268944747614}
+  - component: {fileID: 114511234638068010}
   m_Layer: 0
   m_Name: DeMiLService
   m_TagString: Untagged
@@ -63,6 +64,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: -1453678656, guid: 45b809be76fd7a3468b6f517bced6f28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &114511234638068010
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1061414172299528}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1675560866, guid: 45b809be76fd7a3468b6f517bced6f28, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!114 &114748926302207864
