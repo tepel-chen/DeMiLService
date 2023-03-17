@@ -135,7 +135,6 @@ namespace DeMiLService
         {
             if (!Application.isEditor)
             {
-                Logger.Log(JsonConvert.SerializeObject(ModManager.Instance.InstalledModInfos.Values));
                 ModInfo info = ModManager.Instance.InstalledModInfos.Values.FirstOrDefault(info => info.ID == "DeMiLService");
                 if (info != null)
                 {
@@ -288,6 +287,15 @@ namespace DeMiLService
 
             IEnumerator<object> e = Utils.FlattenThrowableIEnumerator(s.GetEnumerator());
             object last = null;
+            ModInfo info;
+            try
+            {
+                info = ModManager.Instance.InstalledModInfos.Values.FirstOrDefault(info => info.ID == "DeMiLService");
+            } catch
+            {
+                info = null;
+            }
+
             while (e.MoveNext())
             {
                 if(e.Current is Exception ex)
@@ -302,6 +310,11 @@ namespace DeMiLService
                 }
                 last = e.Current;
                 yield return e.Current;
+            }
+
+            if(last is Dictionary<string, object> _last && info != null && info.Version is string)
+            {
+                _last.Add("Version", info.Version);
             }
 
             byte[] bytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(last));
