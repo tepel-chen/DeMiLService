@@ -112,7 +112,7 @@ namespace DeMiLService
                     detail = new Dictionary<string, object>() {
                             { "MissionID", missionId },
                             { "MaximumSupportedBombsCount", MultipleBombs.GetMaximumBombCount() },
-                            { "MissionModulesCount", missionDetail.BombCount },
+                            { "MissionBombsCount", missionDetail.BombCount },
                         };
                     return false;
                 }
