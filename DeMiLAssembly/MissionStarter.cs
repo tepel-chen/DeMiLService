@@ -62,21 +62,30 @@ namespace DeMiLService
         }
         public Dictionary<string, object> StartMissionByName(string name, Mod mod, string _seed, bool force = false)
         {
-            var searchStr = name.Trim();
-            var missions = mod.GetValue<List<ModMission>>("missions").Select(mission => Tuple.Create(Localization.GetLocalizedString(mission.DisplayNameTerm).Trim(), mission));
+            var searchStr = name.Trim().ToLowerInvariant();
+            var missions = mod.GetValue<List<ModMission>>("missions").Select(mission => Tuple.Create(Localization.GetLocalizedString(mission.DisplayNameTerm).Trim().ToLowerInvariant(), mission));
             var fullMatch = missions.Where(missionTuple => missionTuple.Item1 == searchStr).Take(2).ToList();
             if(fullMatch.Count > 1)
             {
-                throw new Exception($"Multiple mission with exact name {name} found!");
+                throw new Exception($"Multiple mission with exact name \"{name}\" found!");
             }
             if(fullMatch.Count == 1)
             {
                 return StartMission(fullMatch[0].Item2.ID, _seed, force);
             }
+            var matchWithThe = missions.Where(missionTuple => missionTuple.Item1 == "the " + searchStr ).Take(2).ToList();
+            if(matchWithThe.Count > 1)
+            {
+                throw new Exception($"Multiple mission with exact name \"the {name}\" found!");
+            }
+            if(matchWithThe.Count == 1)
+            {
+                return StartMission(matchWithThe[0].Item2.ID, _seed, force);
+            }
             var partialMatch = missions.Where(missionTuple => missionTuple.Item1.Contains(searchStr)).Take(2).ToList();
             if (partialMatch.Count > 1)
             {
-                throw new Exception($"No mission with exact name found, but multiple mission patially matched {name} ({partialMatch.Select(m => m.Item1).Join(", ")})!");
+                throw new Exception($"No mission with exact name found, but multiple mission patially matched \"{name}\" ({partialMatch.Select(m => m.Item1).Join(", ")})!");
             }
             if (partialMatch.Count == 1)
             {
