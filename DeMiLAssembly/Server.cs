@@ -305,6 +305,7 @@ namespace DeMiLService
                         {"ERROR", ex.Message },
                         {"Stacktrace", ex.StackTrace }
                     };
+                    Logger.LogError(ex);
                     yield return e.Current;
                     break;
                 }
