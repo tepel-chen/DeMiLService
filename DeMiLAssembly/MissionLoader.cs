@@ -160,6 +160,11 @@ namespace DeMiLService
 
 			foreach (string fileName in mod.GetAssetBundlePaths())
 			{
+				if (Path.GetFileName(fileName) != "mod.bundle")
+				{
+					continue;
+				}
+
 				var bundleRequest = AssetBundle.LoadFromFileAsync(fileName);
 				yield return bundleRequest;
 
@@ -193,10 +198,10 @@ namespace DeMiLService
 			foreach (KMService service in mod.GetModObjects<KMService>())
 			{
 				GameObject obj = UnityEngine.Object.Instantiate(service.gameObject);
+				mod.AddServiceObject(obj);
 				obj.transform.parent = ModManager.Instance.transform;
 			}
 
-			mod.RemoveServiceObjects();
 			mod.CallMethod("RemoveSoundGroups");
 			mod.CallMethod("RemoveSoundOverrides");
 
