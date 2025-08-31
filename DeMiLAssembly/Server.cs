@@ -77,7 +77,7 @@ namespace DeMiLService
                 return;
             }
 
-            Logger.Log($"Recieved request {context.Request.Url.OriginalString}");
+            Logger.Log($"Received request {context.Request.Url.OriginalString}");
             coroutineQueue.Enqueue(Send(SwitchURL(context), context));
         }
 
