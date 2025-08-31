@@ -190,6 +190,12 @@ namespace DeMiLService
 				FactoryMission.UpdateCompatibleMissions();
 			}
 
+			foreach (KMService service in mod.GetModObjects<KMService>())
+			{
+				GameObject obj = UnityEngine.Object.Instantiate(service.gameObject);
+				obj.transform.parent = ModManager.Instance.transform;
+			}
+
 			mod.RemoveServiceObjects();
 			mod.CallMethod("RemoveSoundGroups");
 			mod.CallMethod("RemoveSoundOverrides");
